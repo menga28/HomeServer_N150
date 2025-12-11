@@ -1,0 +1,9 @@
+# Ignora le variabili d'ambiente con le password
+.env
+
+# Ignora le cartelle dei dati delle app (stanno sul SSD locale, non su git)
+appdata/
+
+# Ignora cartelle di sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,224 @@
+name: home-server
+
+services:
+  # ==========================================
+  # GESTIONE E DASHBOARD
+  # ==========================================
+  
+  # Portainer CE - Gestione Container Avanzata
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${CONFIG_PATH}/portainer:/data
+    ports:
+      - 9000:9000
+    restart: unless-stopped
+
+  # Homepage - Dashboard moderna (Alternative a CasaOS)
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    volumes:
+      - ${CONFIG_PATH}/homepage:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - 3000:3000
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+    restart: unless-stopped
+
+  # ==========================================
+  # MEDIA SERVER (Con Transcodifica HW N150)
+  # ==========================================
+
+  # Plex - Il Re dei media server
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - VERSION=docker
+    volumes:
+      - ${CONFIG_PATH}/plex:/config
+      - ${MEDIA_PATH}/Media:/media # Punta al HDD esterno
+    devices:
+      - /dev/dri:/dev/dri # <--- ABILITA GPU INTEL N150
+    restart: unless-stopped
+
+  # Jellyfin - L'alternativa Open Source
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${CONFIG_PATH}/jellyfin:/config
+      - ${MEDIA_PATH}/Media:/media
+    ports:
+      - 8096:8096
+    devices:
+      - /dev/dri:/dev/dri # <--- ABILITA GPU INTEL N150
+    restart: unless-stopped
+
+  # ==========================================
+  # AUTOMAZIONE DOWNLOAD (*ARR)
+  # ==========================================
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${CONFIG_PATH}/radarr:/config
+      - ${MEDIA_PATH}:/data # Mappatura unica per Hardlinks (importante!)
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${CONFIG_PATH}/sonarr:/config
+      - ${MEDIA_PATH}:/data # Mappatura unica per Hardlinks
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+
+  # ==========================================
+  # RETE E ACCESSO
+  # ==========================================
+
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: tailscale
+    hostname: home-server
+    environment:
+      - TS_AUTHKEY=${TAILSCALE_AUTH_KEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+    volumes:
+      - ${CONFIG_PATH}/tailscale:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    restart: unless-stopped
+
+  # ==========================================
+  # MONITORING
+  # ==========================================
+
+  # Beszel - Monitoring leggerissimo (Hub + Agent)
+  beszel:
+    image: henrygd/beszel:latest
+    container_name: beszel
+    ports:
+      - 8090:8090
+    volumes:
+      - ${CONFIG_PATH}/beszel:/beszel_data
+    restart: unless-stopped
+
+  beszel-agent:
+    image: henrygd/beszel-agent:latest
+    container_name: beszel-agent
+    network_mode: host
+    environment:
+      PORT: 45876
+      KEY: "chiave-pubblica-generata-dall-hub" # La inserirai dopo il primo avvio
+    restart: unless-stopped
+
+  # ==========================================
+  # TOOLS UTILI
+  # ==========================================
+
+  stirling-pdf:
+    image: frooodle/s-pdf:latest
+    container_name: stirling-pdf
+    ports:
+      - 8081:8080
+    environment:
+      - DOCKER_ENABLE_SECURITY=false
+    restart: unless-stopped
+
+  it-tools:
+    image: corentinth/it-tools:latest
+    container_name: it-tools
+    ports:
+      - 8082:80
+    restart: unless-stopped
+
+  # ==========================================
+  # IMMICH (FOTO CLOUD - Alternativa GPhotos)
+  # ==========================================
+  
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:release
+    container_name: immich_server
+    volumes:
+      - ${MEDIA_PATH}/Immich:/usr/src/app/upload # Foto su HDD Esterno
+      - /etc/localtime:/etc/localtime:ro
+    env_file: .env
+    environment:
+      - DB_HOSTNAME=immich_postgres
+      - DB_USERNAME=postgres
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=immich_redis
+    ports:
+      - 2283:3001
+    depends_on:
+      - immich_redis
+      - immich_postgres
+    restart: unless-stopped
+
+  immich_machine_learning:
+    image: ghcr.io/immich-app/immich-machine-learning:release
+    container_name: immich_machine_learning
+    volumes:
+      - ${CONFIG_PATH}/immich_model-cache:/cache
+    restart: unless-stopped
+
+  immich_redis:
+    image: registry.hub.docker.com/library/redis:6.2-alpine
+    container_name: immich_redis
+    restart: unless-stopped
+
+  immich_postgres:
+    image: registry.hub.docker.com/tensorchord/pgvecto-rs:pg14-v0.2.0
+    container_name: immich_postgres
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: postgres
+      POSTGRES_DB: immich
+    volumes:
+      - ${CONFIG_PATH}/immich_postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # ==========================================
+  # GAME SERVERS (Stoppati di default)
+  # ==========================================
+
+  minecraft:
+    image: itzg/minecraft-server
+    container_name: minecraft
+    profiles: ["games"]  # <--- MAGIA: Non parte con "docker compose up"
+    ports:
+      - 25565:25565
+    environment:
+      EULA: "TRUE"
+      MEMORY: "4G" # Assegna 4GB di RAM
+    volumes:
+      - ${CONFIG_PATH}/minecraft:/data
+    restart: no
