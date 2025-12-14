@@ -1,10 +1,14 @@
 name: home-server
 
+networks:
+  immich:
+    driver: bridge
+
 services:
   # ==========================================
   # GESTIONE E DASHBOARD
   # ==========================================
-  
+
   # Portainer CE - Gestione Container Avanzata
   portainer:
     image: portainer/portainer-ce:latest
@@ -30,7 +34,50 @@ services:
     environment:
       PUID: ${PUID}
       PGID: ${PGID}
+      HOMEPAGE_ALLOWED_HOSTS: "*"
     restart: unless-stopped
+
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    user: "${PUID}:${PGID}" # Esegue con i tuoi permessi per evitare problemi di scrittura
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${CONFIG_PATH}/filebrowser/filebrowser.db:/database.db
+      - ${CONFIG_PATH}/filebrowser/settings.json:/img/.filebrowser.json
+      # Mappiamo cosa vuoi vedere nel File Manager:
+      - ${MEDIA_PATH}:/srv/HDD_12TB        # Vedrai il disco esterno come cartella "HDD_12TB"
+      - ${CONFIG_PATH}:/srv/Docker_Configs # Vedrai le config dei container (utile per backup)
+    ports:
+      - 8050:80 # Usiamo la porta 8050 (la 8080 è occupata da qBit)
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  # ==========================================
+  # DOWNLOAD CLIENT
+  # ==========================================
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - WEBUI_PORT=8080
+    volumes:
+      - ${CONFIG_PATH}/qbittorrent:/config
+      # Mappatura CRUCIALE: Deve essere identica a Radarr/Sonarr per gli Hardlink
+      - ${MEDIA_PATH}:/data
+    ports:
+      - 8080:8080           # WebUI
+      - 6881:6881           # Traffico Torrent TCP
+      - 6881:6881/udp       # Traffico Torrent UDP
+    restart: unless-stopped
+
 
   # ==========================================
   # MEDIA SERVER (Con Transcodifica HW N150)
@@ -45,6 +92,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM}
     volumes:
       - ${CONFIG_PATH}/plex:/config
       - ${MEDIA_PATH}/Media:/media # Punta al HDD esterno
@@ -137,7 +185,7 @@ services:
     network_mode: host
     environment:
       PORT: 45876
-      KEY: "chiave-pubblica-generata-dall-hub" # La inserirai dopo il primo avvio
+      KEY: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDWDdkwWPU6GasP5YFUxjqiycsvh36ocZmyM0P1wZpHi" # La inserirai dopo il primo avvio
     restart: unless-stopped
 
   # ==========================================
@@ -160,51 +208,82 @@ services:
       - 8082:80
     restart: unless-stopped
 
+
   # ==========================================
-  # IMMICH (FOTO CLOUD - Alternativa GPhotos)
+  # IMMICH (FOTO CLOUD - Configurazione Unificata & HW Accel)
   # ==========================================
-  
+
   immich-server:
-    image: ghcr.io/immich-app/immich-server:release
     container_name: immich_server
+    image: ghcr.io/immich-app/immich-server:release
+    # Per Intel N100/N150 (QuickSync Transcoding)
+    devices:
+      - /dev/dri:/dev/dri
     volumes:
-      - ${MEDIA_PATH}/Immich:/usr/src/app/upload # Foto su HDD Esterno
+      # Percorso foto/video (Assicurati che questo path esista e abbia i permessi)
+      - ${MEDIA_PATH}/Immich:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
-    env_file: .env
+    env_file:
+      - .env
     environment:
       - DB_HOSTNAME=immich_postgres
-      - DB_USERNAME=postgres
-      - DB_DATABASE_NAME=immich
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE_NAME=${DB_DATABASE_NAME}
       - REDIS_HOSTNAME=immich_redis
     ports:
-      - 2283:3001
+      # Mappa la porta definita nel .env (es. 2284) alla porta interna 2283
+      - ${IMMICH_PORT:-2284}:2283
     depends_on:
       - immich_redis
       - immich_postgres
-    restart: unless-stopped
+    restart: always
+    networks:
+      - immich
 
   immich_machine_learning:
-    image: ghcr.io/immich-app/immich-machine-learning:release
     container_name: immich_machine_learning
+    # Usiamo la versione OpenVINO specifica per CPU Intel (più veloce su N100)
+    image: ghcr.io/immich-app/immich-machine-learning:release-openvino
+    device_cgroup_rules:
+      - 'c 189:* rmw' # Permessi opzionali per alcuni acceleratori, male non fa
+    devices:
+      - /dev/dri:/dev/dri
     volumes:
       - ${CONFIG_PATH}/immich_model-cache:/cache
-    restart: unless-stopped
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - immich
 
   immich_redis:
-    image: registry.hub.docker.com/library/redis:6.2-alpine
     container_name: immich_redis
-    restart: unless-stopped
+    image: redis:6.2-alpine
+    restart: always
+    networks:
+      - immich
 
   immich_postgres:
-    image: registry.hub.docker.com/tensorchord/pgvecto-rs:pg14-v0.2.0
     container_name: immich_postgres
+    # Immagine ufficiale ottimizzata con le estensioni vettoriali corrette
+    image: registry.hub.docker.com/tensorchord/pgvecto-rs:pg14-v0.2.0
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_USER: postgres
-      POSTGRES_DB: immich
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
     volumes:
       - ${CONFIG_PATH}/immich_postgres:/var/lib/postgresql/data
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${DB_DATABASE_NAME} -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: always
+    networks:
+      - immich
 
   # ==========================================
   # GAME SERVERS (Stoppati di default)
