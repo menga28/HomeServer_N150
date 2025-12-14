@@ -1,9 +1,57 @@
-# Ignora le variabili d'ambiente con le password
+# ===============================================
+# 1. ESCLUSIONI PERMANENTI (Dati e Variabili)
+# ===============================================
 .env
-
-# Ignora le cartelle dei dati delle app (stanno sul SSD locale, non su git)
-appdata/
-
-# Ignora cartelle di sistema
+Media/
+Downloads/
 .DS_Store
 Thumbs.db
+
+# ===============================================
+# 2. ESCLUSIONE GENERALE di TUTTA APP-DATA
+# ===============================================
+# ESCLUDE TUTTO in appdata/, ri-inclusione fatta sotto
+appdata/
+
+# ===============================================
+# 3. RE-INCLUSIONI SELETTIVE (I file di Configurazione che vogliamo)
+# ===============================================
+!appdata/**/*.yaml
+!appdata/**/*.json
+!appdata/**/*.xml
+!appdata/**/*.conf
+!appdata/**/*.html
+!appdata/**/*.key
+!appdata/**/*.pub
+!appdata/**/*.json
+!appdata/**/*.js
+!appdata/**/LICENSE.txt
+!appdata/**/README.md
+
+# ===============================================
+# 4. RI-ESCLUSIONI AGGRESSIVE (La "Lista Nera" per la Cache)
+# ===============================================
+
+# Escludi le Cartelle di Cache/Log note (anche se ri-incluse sopra)
+appdata/**/cache/
+appdata/**/Cache/
+appdata/**/logs/
+appdata/**/Logs/
+appdata/**/MediaCover/
+appdata/**/MediaCover/
+appdata/**/Plug-in Support/Caches/
+appdata/**/Plug-in Support/Metadata Combination/
+appdata/**/Data/com.plexapp.system/Dict
+appdata/**/ScheduledTasks/
+appdata/**/ASP/
+appdata/**/GeoDB/
+appdata/**/Crash Reports/
+
+# Escludi i file di database/backup generici e temporanei
+*.db
+*.db-*
+*.db-wal
+*.db-shm
+*.dat
+*.log
+*.bak

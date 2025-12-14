@@ -48,7 +48,7 @@ services:
       - ${CONFIG_PATH}/filebrowser/filebrowser.db:/database.db
       - ${CONFIG_PATH}/filebrowser/settings.json:/img/.filebrowser.json
       # Mappiamo cosa vuoi vedere nel File Manager:
-      - ${MEDIA_PATH}:/srv/HDD_12TB        # Vedrai il disco esterno come cartella "HDD_12TB"
+      - ${MEDIA_PATH}:/srv/HDD_12TB # Vedrai il disco esterno come cartella "HDD_12TB"
       - ${CONFIG_PATH}:/srv/Docker_Configs # Vedrai le config dei container (utile per backup)
     ports:
       - 8050:80 # Usiamo la porta 8050 (la 8080 è occupata da qBit)
@@ -73,11 +73,10 @@ services:
       # Mappatura CRUCIALE: Deve essere identica a Radarr/Sonarr per gli Hardlink
       - ${MEDIA_PATH}:/data
     ports:
-      - 8080:8080           # WebUI
-      - 6881:6881           # Traffico Torrent TCP
-      - 6881:6881/udp       # Traffico Torrent UDP
+      - 8080:8080 # WebUI
+      - 6881:6881 # Traffico Torrent TCP
+      - 6881:6881/udp # Traffico Torrent UDP
     restart: unless-stopped
-
 
   # ==========================================
   # MEDIA SERVER (Con Transcodifica HW N150)
@@ -157,6 +156,7 @@ services:
     environment:
       - TS_AUTHKEY=${TAILSCALE_AUTH_KEY}
       - TS_STATE_DIR=/var/lib/tailscale
+      - TS_EXTRA_ARGS=--advertise-routes=192.168.3.0/24 --force-reauth
     volumes:
       - ${CONFIG_PATH}/tailscale:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
@@ -164,6 +164,8 @@ services:
       - NET_ADMIN
       - NET_RAW
     restart: unless-stopped
+    networks:
+      default:
 
   # ==========================================
   # MONITORING
@@ -208,7 +210,6 @@ services:
       - 8082:80
     restart: unless-stopped
 
-
   # ==========================================
   # IMMICH (FOTO CLOUD - Configurazione Unificata & HW Accel)
   # ==========================================
@@ -246,7 +247,7 @@ services:
     # Usiamo la versione OpenVINO specifica per CPU Intel (più veloce su N100)
     image: ghcr.io/immich-app/immich-machine-learning:release-openvino
     device_cgroup_rules:
-      - 'c 189:* rmw' # Permessi opzionali per alcuni acceleratori, male non fa
+      - "c 189:* rmw" # Permessi opzionali per alcuni acceleratori, male non fa
     devices:
       - /dev/dri:/dev/dri
     volumes:
@@ -272,7 +273,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_DB: ${DB_DATABASE_NAME}
-      POSTGRES_INITDB_ARGS: '--data-checksums'
+      POSTGRES_INITDB_ARGS: "--data-checksums"
     volumes:
       - ${CONFIG_PATH}/immich_postgres:/var/lib/postgresql/data
     healthcheck:
@@ -292,7 +293,7 @@ services:
   minecraft:
     image: itzg/minecraft-server
     container_name: minecraft
-    profiles: ["games"]  # <--- MAGIA: Non parte con "docker compose up"
+    profiles: ["games"] # <--- MAGIA: Non parte con "docker compose up"
     ports:
       - 25565:25565
     environment:
