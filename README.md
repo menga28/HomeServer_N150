@@ -32,23 +32,30 @@ Il sistema separa nettamente le configurazioni (su SSD veloce) dai media (su HDD
 
 ## 🚀 Installazione e Setup
 
-### 1. Prerequisiti
-Assicurarsi che Docker e Docker Compose siano installati e che l'HDD esterno sia montato (es. in `/mnt/hdd_esterno`).
+### 1. Connessione Iniziale (Lato Windows)
+Per gestire il server da remoto:
+1.  Apri **PowerShell** o **Terminale**.
+2.  Connettiti al tuo server (sostituisci l'IP):
+    ```bash
+    ssh nome_utente@192.168.X.XX
+    ```
+3.  Per copiare il testo dal terminale, è sufficiente selezionarlo; per incollare si usa il tasto destro o `Ctrl + V`.
 
-### 2. Clona la Repository
+### 2. Clona la Repository (Lato SSH)
+Scarica la configurazione e crea i file essenziali.
 ```bash
-git clone https://github.com/tuo-user/home-server.git
+git clone git@github.com:tuo-user/home-server.git
 cd home-server
+# Assicurati di essere il proprietario di tutta la cartella per i permessi Docker:
+sudo chown -R $USER:$USER ~/home-server
 ```
 
 ### 3. Configura le Variabili d'Ambiente (.env)
-Crea un file `.env` nella root del progetto. **Questo file contiene password e non deve essere caricato su GitHub.**
-
+Crea il file `.env` che contiene i segreti.
 ```bash
 nano .env
 ```
-
-Incolla il seguente template e modifica i valori:
+Incolla il template e modifica i valori:
 
 ```ini
 # --- SYSTEM ---
@@ -57,9 +64,7 @@ PUID=1000  # Comando 'id' per verificare
 PGID=1000
 
 # --- PATHS ---
-# Configurazioni salvate localmente nella cartella del progetto (SSD)
 CONFIG_PATH=./appdata
-# Percorso assoluto del HDD esterno
 MEDIA_PATH=/mnt/hdd_esterno
 
 # --- SECRETS ---
@@ -71,24 +76,61 @@ DB_PASSWORD=tua_password_sicura_immich
 ```bash
 docker compose up -d
 ```
+*(Se un container dà errore di avvio, prova a rilanciare il comando. Docker è resiliente).*
 
 ---
 
-## services 🛠️ Servizi e Porte
+## 🛠️ Manutenzione e Gestione (Lato SSH)
 
-| Servizio | URL Locale | Descrizione |
-| :--- | :--- | :--- |
-| **Homepage** | `http://IP:3000` | Dashboard Principale |
-| **Portainer** | `http://IP:9000` | Gestione Docker GUI |
-| **Plex** | `http://IP:32400` | Media Server (Transcodifica HW) |
-| **Jellyfin** | `http://IP:8096` | Media Server (Open Source) |
-| **Beszel** | `http://IP:8090` | Monitoraggio Risorse |
-| **Immich** | `http://IP:2283` | Backup Foto (Simile a GPhotos) |
-| **Stirling PDF**| `http://IP:8081` | Tool manipolazione PDF |
-| **IT-Tools** | `http://IP:8082` | Strumenti dev/sysadmin |
-| **Radarr** | `http://IP:7878` | Gestione Film |
-| **Sonarr** | `http://IP:8989` | Gestione Serie TV |
+Questa sezione contiene i comandi che utilizzerai di più per la gestione quotidiana del server.
 
+### 1. Modificare la Configurazione (docker-compose.yml)
+Per aggiungere, rimuovere o modificare i container:
+1.  Apri il file:
+    ```bash
+    nano ~/home-server/docker-compose.yml
+    ```
+2.  Dopo le modifiche, riavvia i container modificati (o tutto lo stack):
+    ```bash
+    # Riavvia tutto
+    docker compose up -d 
+    # Riavvia solo Immich (es.)
+    docker compose up -d immich_server immich_web
+    ```
+
+### 2. Gestione della Dashboard (Homepage)
+Tutta la configurazione di Homepage (icone, link, widget) avviene modificando file YAML nella cartella `appdata`.
+
+1.  Accedi alla cartella di configurazione:
+    ```bash
+    cd ~/home-server/appdata/homepage
+    ```
+2.  Modifica i file principali (es. per aggiungere o modificare servizi):
+    ```bash
+    nano services.yaml
+    nano widgets.yaml
+    ```
+    *(La dashboard si aggiornerà automaticamente dopo aver salvato il file).*
+
+### 3. Gestione dei Permessi
+Se un container (Plex, Radarr) dà errore **"Permission Denied"** nell'accedere all'HDD esterno, lancia questi due comandi:
+```bash
+# Rende l'utente 1000 (il tuo) proprietario di TUTTO l'HDD
+sudo chown -R 1000:1000 /mnt/hdd_esterno
+
+# Rende tutti i file completamente leggibili/scrivibili dal proprietario
+sudo chmod -R 775 /mnt/hdd_esterno
+```
+
+### 4. Gestione Firewall (UFW)
+Dopo aver lanciato nuovi servizi, potresti dover aprire la porta (se non usi `network_mode: host` come Plex).
+
+```bash
+# Apri una porta specifica (es. 2284 per Immich Web)
+sudo ufw allow 2284
+# Rimuovi una porta
+sudo ufw delete allow 2284
+```
 ---
 
 ## 🎮 Server Minecraft (Gestione Profili)
@@ -107,33 +149,28 @@ docker stop minecraft
 
 ---
 
-## 💡 Note Tecniche Importanti
-
-### Transcodifica Hardware (Intel QuickSync)
-I container Plex e Jellyfin hanno il device `/dev/dri` passato. Questo permette all'Intel N150 di decodificare flussi video 4K HEVC senza usare la CPU.
-
-### Gestione Percorsi (Atomic Moves)
-Radarr e Sonarr condividono lo stesso volume `/data` mappato su `${MEDIA_PATH}`.
-*   Download: `/data/Downloads`
-*   Media: `/data/Media`
-Questa configurazione è essenziale per permettere gli **Hardlinks** (spostamento istantaneo dei file senza duplicazione dello spazio).
-
-### Immich Machine Learning
-Al primo avvio, Immich scaricherà diversi GB di modelli per il riconoscimento facciale. È normale vedere un alto utilizzo della CPU nei primi minuti/ore.
-
----
-
 ## 🔄 Manutenzione e Aggiornamenti
 
-**Aggiornare tutto lo stack:**
+**Aggiornare tutto lo stack (consigliato ogni 2-3 mesi):**
 ```bash
 # 1. Scarica le ultime modifiche dalla repo (se hai cambiato config)
 git pull
 
-# 2. Scarica le nuove immagini docker
+# 2. Scarica le nuove immagini docker (molto traffico!)
 docker compose pull
 
 # 3. Ricrea i container aggiornati (rimuovendo i vecchi non usati)
 docker compose up -d --remove-orphans
 docker image prune -f
+```
+
+---
+
+## ⚠️ Immich Final Note
+
+Il WebUI di Immich è accessibile su: `http://IP:2284`. Se hai problemi di connessione, prova sempre prima a riavviare i container Immich.
+
+```bash
+docker compose up -d immich_server immich_web
+```
 ```
