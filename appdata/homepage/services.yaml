@@ -2,127 +2,126 @@
 # GRUPPO 1: GESTIONE SERVER
 # ==========================================
 - Gestione:
-    - Portainer:
-        icon: portainer.png
-        href: http://192.168.3.85:9000/
-        description: Gestione Docker
-        server: my-docker
-        container: portainer
+      - Portainer:
+            icon: portainer.png
+            href: http://192.168.3.85:9000/
+            description: Gestione Docker
+            server: my-docker
+            container: portainer
 
-    - Beszel:
-        icon: https://raw.githubusercontent.com/henrygd/beszel/main/internal/site/public/static/icon.png
-        href: http://192.168.3.85:8090/
-        description: Monitoraggio Risorse
-        server: my-docker
-        container: beszel
+      - Beszel:
+            icon: https://raw.githubusercontent.com/henrygd/beszel/main/internal/site/public/static/icon.png
+            href: http://192.168.3.85:8090/
+            description: Monitoraggio Risorse
+            server: my-docker
+            container: beszel
 
-    - Homepage:
-        icon: homepage.png
-        href: http://192.168.3.85:3000/
-        description: Dashboard
-        server: my-docker
-        container: homepage
+      - Homepage:
+            icon: homepage.png
+            href: http://192.168.3.85:3000/
+            description: Dashboard
+            server: my-docker
+            container: homepage
 
-    - Tailscale:
-        icon: tailscale.png
-        href: https://login.tailscale.com/admin/machines
-        description: VPN Mesh Access
-        server: my-docker
-        container: tailscale
-        # Nota: Tailscale non ha una WebUI locale, linkiamo alla console admin online
+      - Tailscale:
+            icon: tailscale.png
+            href: https://login.tailscale.com/admin/machines
+            description: VPN Mesh Access
+            server: my-docker
+            container: tailscale
+            # Nota: Tailscale non ha una WebUI locale, linkiamo alla console admin online
 
-    - FileManager:
-        icon: filebrowser.png
-        href: http://192.168.3.85:8050/
-        description: Gestione File Web
-        server: my-docker
-        container: filebrowser
+      - FileManager:
+            icon: filebrowser.png
+            href: http://192.168.3.85:8050/
+            description: Gestione File Web
+            server: my-docker
+            container: filebrowser
 
 # ==========================================
 # GRUPPO 2: MEDIA CENTER
 # ==========================================
 - Media Center:
-    - Plex:
-        icon: plex.png
-        href: http://192.168.3.85:32400/web
-        description: Streaming Server
-        server: my-docker
-        container: plex
+      - Plex:
+            icon: plex.png
+            href: http://192.168.3.85:32400/web
+            description: Streaming Server
+            server: my-docker
+            container: plex
 
-    - Jellyfin:
-        icon: jellyfin.png
-        href: http://192.168.3.85:8096/
-        description: Media Open Source
-        server: my-docker
-        container: jellyfin
+      - Jellyfin:
+            icon: jellyfin.png
+            href: http://192.168.3.85:8096/
+            description: Media Open Source
+            server: my-docker
+            container: jellyfin
 
 # ==========================================
 # GRUPPO 3: AUTOMAZIONE (*ARR)
 # ==========================================
 - Torrent:
-    - Radarr:
-        icon: radarr.png
-        href: http://192.168.3.85:7878/
-        description: Gestione Film
-        server: my-docker
-        container: radarr
+      - Radarr:
+            icon: radarr.png
+            href: http://192.168.3.85:7878/
+            description: Gestione Film
+            server: my-docker
+            container: radarr
 
-    - Sonarr:
-        icon: sonarr.png
-        href: http://192.168.3.85:8989/
-        description: Gestione Serie TV
-        server: my-docker
-        container: sonarr
+      - Sonarr:
+            icon: sonarr.png
+            href: http://192.168.3.85:8989/
+            description: Gestione Serie TV
+            server: my-docker
+            container: sonarr
 
-    - qBittorrent:
-        icon: qbittorrent.png
-        href: http://192.168.3.85:8080/
-        description: Torrent Client
-        widget:
-            type: qbittorrent
-            url: http://192.168.3.85:8080
-            username: admin
-            password: 7534286
-
+      - qBittorrent:
+            icon: qbittorrent.png
+            href: http://192.168.3.85:8080/
+            description: Torrent Client
+            widget:
+                type: qbittorrent
+                url: http://192.168.3.85:8080
+                username: admin
+                password: 7534286
 
 # ==========================================
 # GRUPPO 4: FOTO E FILE
 # ==========================================
 - Dati & Foto:
-    - Immich:
-        icon: immich.png
-        href: http://192.168.3.85:2284/
-        description: Google Photos Killer
-        widget:
-          type: immich
-          url: http://immich_server:3001 # URL INTERNO AL CONTAINER API
-          key: GOOs9lS9b7sWnJwlpfkuUn46iLi3wXq2tCBMCrHOY
-        server: my-docker
-        container: immich_web
+      - Immich:
+            icon: immich.png
+            href: http://192.168.3.85:2284/
+            description: Google Photos Killer
+            widget:
+                type: immich
+                url: http://immich_server:3001 # URL INTERNO AL CONTAINER API
+                key: GOOs9lS9b7sWnJwlpfkuUn46iLi3wXq2tCBMCrHOY
+            server: my-docker
+            container: immich_web
 
-    - Stirling PDF:
-        icon: stirling-pdf.png
-        href: http://192.168.3.85:8081/
-        description: PDF Tools
-        server: my-docker
-        container: stirling-pdf
+      - Stirling PDF:
+            icon: stirling-pdf.png
+            href: http://192.168.3.85:8081/
+            description: PDF Tools
+            server: my-docker
+            container: stirling-pdf
 
-    - IT-Tools:
-        icon: it-tools.png
-        href: http://192.168.3.85:8082/
-        description: Strumenti Dev
-        server: my-docker
-        container: it-tools
+      - IT-Tools:
+            icon: it-tools.png
+            href: http://192.168.3.85:8082/
+            description: Strumenti Dev
+            server: my-docker
+            container: it-tools
 
 # ==========================================
 # GRUPPO 5: GAMING
 # ==========================================
 - Gaming:
-    - Minecraft:
-        icon: minecraft.png
-        href: # Nessuna WebUI
-        description: Server Java Edition
-        server: my-docker
-        container: minecraft
-        statusStyle: dot
-        # Nota: Apparirà grigio/offline se il container è stoppato (profilo games)
+      - Minecraft:
+            icon: minecraft.png
+            href: # Nessuna WebUI
+            description: Server Java Edition
+            server: my-docker
+            container: minecraft
+            statusStyle: dot
+            # Nota: Apparirà grigio/offline se il container è stoppato (profilo games)

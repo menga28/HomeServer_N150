@@ -3,10 +3,26 @@
 # https://gethomepage.dev/configs/info-widgets/
 
 - resources:
-    cpu: true
-    memory: true
-    disk: /
+      cpu: true
+      memory: true
+      disk: /
 
 - search:
-    provider: duckduckgo
-    target: _blank
+      provider: duckduckgo
+      target: _blank
+
+- beszel:
+      url: http://192.168.3.85:8090
+      server: Beszel-Home
+      show_load: true
+      show_memory: true
+      show_disk: /
+      show_temperature: true
+      show_kernel: false
+      username: menga28@gmail.com
+      password: 5A1£4mNkGOSK
+      systemId: 7p14ohmykyoeltx
+
+- greeting:
+      text_size: xl
+      text: "Home Server N150"

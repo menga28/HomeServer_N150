@@ -5,3 +5,7 @@
 providers:
   openweathermap: openweathermapapikey
   weatherapi: weatherapiapikey
+
+beszel:
+  servers:
+    - name: Beszel-Home

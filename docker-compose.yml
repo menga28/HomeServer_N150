@@ -31,10 +31,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
       - 3000:3000
+    user: "${PUID}:${PGID}"
+    group_add:
+      - "988"
     environment:
       PUID: ${PUID}
       PGID: ${PGID}
       HOMEPAGE_ALLOWED_HOSTS: "*"
+    networks:
+      - default
+      - immich
     restart: unless-stopped
 
   filebrowser:
@@ -56,6 +62,17 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TZ=Europe/Rome
+      - DOCKER_API_VERSION=1.53
+    command: --cleanup --schedule "0 0 4 * * *"
+    restart: unless-stopped
+
   # ==========================================
   # DOWNLOAD CLIENT
   # ==========================================
@@ -76,6 +93,11 @@ services:
       - 8080:8080 # WebUI
       - 6881:6881 # Traffico Torrent TCP
       - 6881:6881/udp # Traffico Torrent UDP
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5' # Limita l'uso della CPU al 50%
+          memory: 4G # Limita l'uso della RAM a 4GB
     restart: unless-stopped
 
   # ==========================================
@@ -156,7 +178,7 @@ services:
     environment:
       - TS_AUTHKEY=${TAILSCALE_AUTH_KEY}
       - TS_STATE_DIR=/var/lib/tailscale
-      - TS_EXTRA_ARGS=--advertise-routes=192.168.3.0/24 --force-reauth
+      - TS_EXTRA_ARGS=--advertise-routes=192.168.3.0/24 --force-reauth  --advertise-exit-node
     volumes:
       - ${CONFIG_PATH}/tailscale:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
@@ -167,16 +189,17 @@ services:
     networks:
       default:
 
-  # ==========================================
-  # MONITORING
-  # ==========================================
+        # ==========================================
+        # MONITORING
+        # ==========================================
 
-  # Beszel - Monitoring leggerissimo (Hub + Agent)
+        # Beszel - Monitoring leggerissimo (Hub + Agent)
   beszel:
     image: henrygd/beszel:latest
     container_name: beszel
-    ports:
-      - 8090:8090
+    network_mode: host
+    # ports:
+    #   - 8090:8090
     volumes:
       - ${CONFIG_PATH}/beszel:/beszel_data
     restart: unless-stopped
@@ -187,7 +210,9 @@ services:
     network_mode: host
     environment:
       PORT: 45876
-      KEY: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDWDdkwWPU6GasP5YFUxjqiycsvh36ocZmyM0P1wZpHi" # La inserirai dopo il primo avvio
+      KEY: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGG6kHPlH62RkJ+cVVSvrwTM1JEmB2FfvLazJoZjbsKb" # La inserirai dopo il primo avvio
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
 
   # ==========================================
@@ -277,7 +302,7 @@ services:
     volumes:
       - ${CONFIG_PATH}/immich_postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d ${DB_DATABASE_NAME} -U ${DB_USERNAME}"]
+      test: [ "CMD-SHELL", "pg_isready -d ${DB_DATABASE_NAME} -U ${DB_USERNAME}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -293,7 +318,7 @@ services:
   minecraft:
     image: itzg/minecraft-server
     container_name: minecraft
-    profiles: ["games"] # <--- MAGIA: Non parte con "docker compose up"
+    profiles: [ "games" ] # <--- MAGIA: Non parte con "docker compose up"
     ports:
       - 25565:25565
     environment:
