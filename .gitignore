@@ -56,3 +56,6 @@ appdata/**/Crash Reports/
 *.dat
 *.log
 *.bak
+
+# Escludi file Plex con token/segreti
+appdata/plex/**/Preferences.xml
