@@ -25,6 +25,7 @@ appdata/
 !appdata/**/*.pub
 !appdata/**/*.json
 !appdata/**/*.js
+!appdata/**/*.sh
 !appdata/**/LICENSE.txt
 !appdata/**/README.md
 

@@ -87,6 +87,8 @@ services:
       - WEBUI_PORT=8080
     volumes:
       - ${CONFIG_PATH}/qbittorrent:/config
+      # Rimuove lockfile/ipc-socket stale prima di ogni avvio (evita crash dopo stop forzato)
+      - ${CONFIG_PATH}/qbittorrent/custom-cont-init.d:/custom-cont-init.d:ro
       # Mappatura CRUCIALE: Deve essere identica a Radarr/Sonarr per gli Hardlink
       - ${MEDIA_PATH}:/data
     ports:
