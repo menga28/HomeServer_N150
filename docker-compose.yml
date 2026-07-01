@@ -46,6 +46,7 @@ services:
   filebrowser:
     image: filebrowser/filebrowser:latest
     container_name: filebrowser
+    profiles: ["media"]
     user: "${PUID}:${PGID}" # Esegue con i tuoi permessi per evitare problemi di scrittura
     environment:
       - PUID=${PUID}
@@ -80,6 +81,7 @@ services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
+    profiles: ["media"]
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -110,6 +112,7 @@ services:
   plex:
     image: lscr.io/linuxserver/plex:latest
     container_name: plex
+    profiles: ["media"]
     network_mode: host
     environment:
       - PUID=${PUID}
@@ -127,6 +130,7 @@ services:
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
+    profiles: ["media"]
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -146,6 +150,7 @@ services:
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
+    profiles: ["media"]
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -159,6 +164,7 @@ services:
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
+    profiles: ["media"]
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -243,6 +249,7 @@ services:
 
   immich-server:
     container_name: immich_server
+    profiles: ["media"]
     image: ghcr.io/immich-app/immich-server:release
     # Per Intel N100/N150 (QuickSync Transcoding)
     devices:

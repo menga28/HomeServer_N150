@@ -1,0 +1,19 @@
+[Unit]
+Description=HomeServer Docker Compose — media (requires /mnt/hdd_esterno)
+Documentation=https://github.com/minipc/HomeServer
+Requires=docker.service mnt-hdd_esterno.mount
+After=docker.service mnt-hdd_esterno.mount homeserver.service
+BindsTo=mnt-hdd_esterno.mount
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/minipc/HomeServer
+ExecStart=/usr/bin/docker compose --profile media up -d --remove-orphans
+ExecStop=/usr/bin/docker compose --profile media stop
+User=minipc
+Group=docker
+
+[Install]
+# Starts automatically whenever mnt-hdd_esterno.mount activates
+WantedBy=mnt-hdd_esterno.mount

@@ -1,0 +1,4 @@
+# Avvia il mount e i container media quando l'HDD esterno viene connesso
+# UUID: 38b3a4d6-1f5c-f143-87df-75641f92c147 = /mnt/hdd_esterno
+ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_UUID}=="38b3a4d6-1f5c-f143-87df-75641f92c147", \
+    TAG+="systemd", ENV{SYSTEMD_WANTS}="mnt-hdd_esterno.mount"
