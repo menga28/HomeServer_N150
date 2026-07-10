@@ -100,8 +100,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5' # Limita l'uso della CPU al 50%
-          memory: 4G # Limita l'uso della RAM a 4GB
+          cpus: '2' # Alzato da 0.5 a 2 core: il limite precedente causava thrashing (CPU e RAM sempre al tetto)
+          memory: 6G # Alzato da 4G a 6G, stesso motivo
     restart: unless-stopped
 
   # ==========================================
@@ -186,7 +186,7 @@ services:
     environment:
       - TS_AUTHKEY=${TAILSCALE_AUTH_KEY}
       - TS_STATE_DIR=/var/lib/tailscale
-      - TS_EXTRA_ARGS=--advertise-routes=192.168.3.0/24 --force-reauth  --advertise-exit-node
+      - TS_EXTRA_ARGS=--advertise-routes=192.168.3.0/24 --advertise-exit-node
     volumes:
       - ${CONFIG_PATH}/tailscale:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
