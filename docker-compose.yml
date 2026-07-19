@@ -175,6 +175,20 @@ services:
       - 8989:8989
     restart: unless-stopped
 
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    profiles: ["media"]
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_PATH}/prowlarr:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+
   # ==========================================
   # RETE E ACCESSO
   # ==========================================
@@ -301,8 +315,8 @@ services:
 
   immich_postgres:
     container_name: immich_postgres
-    # Immagine ufficiale ottimizzata con le estensioni vettoriali corrette
-    image: registry.hub.docker.com/tensorchord/pgvecto-rs:pg14-v0.2.0
+    # Immagine ufficiale Immich con estensione VectorChord (pgvecto-rs è deprecato e incompatibile con Immich v3+)
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USERNAME}

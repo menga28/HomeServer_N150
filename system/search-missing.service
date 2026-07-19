@@ -1,0 +1,12 @@
+[Unit]
+Description=Ricerca automatica torrent mancanti (Sonarr + Radarr)
+Documentation=https://github.com/minipc/HomeServer
+Requires=homeserver-media.service
+After=homeserver-media.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/minipc/HomeServer
+ExecStart=/home/minipc/HomeServer/scripts/search-missing.sh
+User=minipc
+Group=docker

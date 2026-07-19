@@ -12,6 +12,8 @@ echo "==> Installazione servizi systemd da $SYSTEM_DIR"
 cp "$SYSTEM_DIR/homeserver.service"       /etc/systemd/system/
 cp "$SYSTEM_DIR/homeserver-media.service" /etc/systemd/system/
 cp "$SYSTEM_DIR/telegram-data-hub.service" /etc/systemd/system/
+cp "$SYSTEM_DIR/search-missing.service"   /etc/systemd/system/
+cp "$SYSTEM_DIR/search-missing.timer"     /etc/systemd/system/
 
 # 2. Copia la regola udev
 cp "$SYSTEM_DIR/99-hdd-media.rules" /etc/udev/rules.d/
@@ -34,6 +36,7 @@ systemctl enable homeserver.service
 systemctl enable telegram-data-hub.service
 # homeserver-media si abilita con WantedBy=mnt-hdd_esterno.mount
 systemctl enable homeserver-media.service
+systemctl enable --now search-missing.timer
 
 echo ""
 echo "==> Fatto. Riepilogo:"
@@ -41,6 +44,11 @@ echo "    homeserver.service         → avvio automatico (boot)"
 echo "    telegram-data-hub.service  → avvio automatico (boot)"
 echo "    homeserver-media.service   → avvio automatico quando /mnt/hdd_esterno è montato"
 echo ""
+echo "    search-missing.timer       → ricerca automatica mancanti ogni giorno alle 06:00"
+echo ""
 echo "    Per fermare/avviare manualmente i media container:"
 echo "    systemctl start homeserver-media.service"
 echo "    systemctl stop  homeserver-media.service"
+echo ""
+echo "    Per lanciare la ricerca mancanti subito:"
+echo "    systemctl start search-missing.service"

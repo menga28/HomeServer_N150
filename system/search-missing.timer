@@ -1,0 +1,10 @@
+[Unit]
+Description=Timer giornaliero per la ricerca automatica dei torrent mancanti
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+RandomizedDelaySec=600
+Persistent=true
+
+[Install]
+WantedBy=timers.target
