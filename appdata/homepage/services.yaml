@@ -38,6 +38,14 @@
             server: my-docker
             container: filebrowser
 
+      - Watchtower:
+            icon: watchtower.png
+            href: # Nessuna WebUI
+            description: Auto-update immagini (04:00)
+            server: my-docker
+            container: watchtower
+            statusStyle: dot
+
 # ==========================================
 # GRUPPO 2: MEDIA CENTER
 # ==========================================
@@ -74,6 +82,13 @@
             server: my-docker
             container: sonarr
 
+      - Prowlarr:
+            icon: prowlarr.png
+            href: http://192.168.3.85:9696/
+            description: Gestione Indexer
+            server: my-docker
+            container: prowlarr
+
       - qBittorrent:
             icon: qbittorrent.png
             href: http://192.168.3.85:8080/
@@ -97,7 +112,7 @@
                 url: http://immich_server:3001 # URL INTERNO AL CONTAINER API
                 key: GOOs9lS9b7sWnJwlpfkuUn46iLi3wXq2tCBMCrHOY
             server: my-docker
-            container: immich_web
+            container: immich_server
 
       - Stirling PDF:
             icon: stirling-pdf.png
@@ -114,7 +129,41 @@
             container: it-tools
 
 # ==========================================
-# GRUPPO 5: GAMING
+# GRUPPO 5: TELEGRAM DATA HUB
+# ==========================================
+- Telegram Data Hub:
+      - Telegram Bot:
+            icon: telegram.png
+            href: # Nessuna WebUI, e' un bot Telegram headless
+            description: Bot Telegram
+            server: my-docker
+            container: telegram_hub_bot
+            statusStyle: dot
+
+      - Price Sync:
+            icon: python.png
+            href: # Nessuna WebUI, worker in background
+            description: Sync prezzi (loop)
+            server: my-docker
+            container: telegram_hub_price_sync
+            statusStyle: dot
+
+      - NocoDB:
+            icon: nocodb.png
+            href: http://192.168.3.85:8088/
+            description: Interfaccia Database
+            server: my-docker
+            container: telegram_hub_nocodb
+
+      - Grafana:
+            icon: grafana.png
+            href: http://192.168.3.85:3300/
+            description: Dashboard & Metriche
+            server: my-docker
+            container: telegram_hub_grafana
+
+# ==========================================
+# GRUPPO 6: GAMING
 # ==========================================
 - Gaming:
       - Minecraft:

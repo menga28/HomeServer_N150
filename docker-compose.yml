@@ -189,6 +189,17 @@ services:
       - 9696:9696
     restart: unless-stopped
 
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    profiles: ["media"]
+    environment:
+      - TZ=${TZ}
+      - LOG_LEVEL=info
+    ports:
+      - 8191:8191
+    restart: unless-stopped
+
   # ==========================================
   # RETE E ACCESSO
   # ==========================================
