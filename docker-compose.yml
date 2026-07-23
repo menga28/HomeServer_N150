@@ -31,6 +31,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
       - 3000:3000
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     user: "${PUID}:${PGID}"
     group_add:
       - "988"
@@ -59,6 +65,12 @@ services:
       - ${CONFIG_PATH}:/srv/Docker_Configs # Vedrai le config dei container (utile per backup)
     ports:
       - 8050:80 # Usiamo la porta 8050 (la 8080 è occupata da qBit)
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -72,6 +84,12 @@ services:
       - TZ=Europe/Rome
       - DOCKER_API_VERSION=1.53
     command: --cleanup --schedule "0 0 4 * * *"
+    healthcheck:
+      test: ["CMD", "/watchtower", "--health-check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
 
   # ==========================================
@@ -102,6 +120,12 @@ services:
         limits:
           cpus: '2' # Alzato da 0.5 a 2 core: il limite precedente causava thrashing (CPU e RAM sempre al tetto)
           memory: 6G # Alzato da 4G a 6G, stesso motivo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
 
   # ==========================================
@@ -124,6 +148,12 @@ services:
       - ${MEDIA_PATH}/Media:/media # Punta al HDD esterno
     devices:
       - /dev/dri:/dev/dri # <--- ABILITA GPU INTEL N150
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:32400/identity"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     restart: unless-stopped
 
   # Jellyfin - L'alternativa Open Source
@@ -141,6 +171,12 @@ services:
       - 8096:8096
     devices:
       - /dev/dri:/dev/dri # <--- ABILITA GPU INTEL N150
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8096/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     restart: unless-stopped
 
   # ==========================================
@@ -163,6 +199,12 @@ services:
       - ${MEDIA_PATH}:/data # Mappatura unica per Hardlinks (importante!)
     ports:
       - 7878:7878
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7878/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
 
   sonarr:
@@ -181,6 +223,12 @@ services:
       - ${MEDIA_PATH}:/data # Mappatura unica per Hardlinks
     ports:
       - 8989:8989
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8989/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
 
   prowlarr:
@@ -195,6 +243,12 @@ services:
       - ${CONFIG_PATH}/prowlarr:/config
     ports:
       - 9696:9696
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9696/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
 
   flaresolverr:
@@ -226,6 +280,12 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
+    healthcheck:
+      test: ["CMD", "tailscale", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
     networks:
       default:
@@ -243,6 +303,12 @@ services:
     #   - 8090:8090
     volumes:
       - ${CONFIG_PATH}/beszel:/beszel_data
+    healthcheck:
+      test: ["CMD", "/beszel", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
 
   beszel-agent:
@@ -254,6 +320,12 @@ services:
       KEY: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGG6kHPlH62RkJ+cVVSvrwTM1JEmB2FfvLazJoZjbsKb" # La inserirai dopo il primo avvio
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    healthcheck:
+      test: ["CMD", "/agent", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
 
   # ==========================================
@@ -274,6 +346,12 @@ services:
     container_name: it-tools
     ports:
       - 8082:80
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
 
   # ==========================================
