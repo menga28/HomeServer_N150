@@ -1,0 +1,66 @@
+title: Casa
+views:
+  - title: Casa
+    path: casa
+    icon: mdi:home-heart
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Camera da letto
+            icon: mdi:bed
+          - type: tile
+            entity: switch.camera_letto_sonoff_100104a286
+            name: Luce principale
+          - type: tile
+            entity: light.yeelink_de_313037363_color2_s_2_light
+            name: Lampadina
+          - type: tile
+            entity: media_player.camera_michele
+            name: Camera Michele
+          - type: tile
+            entity: switch.chuangmi_de_371050501_029a02_on_p_2_1
+            name: Videocamera
+          - type: tile
+            entity: switch.chuangmi_de_371050501_029a02_motion_detection_p_5_1
+            name: Rilevamento movimento
+          - type: tile
+            entity: light.chuangmi_de_371050501_029a02_s_3_indicator_light
+            name: Indicatore videocamera
+          - type: tile
+            entity: sensor.miaomiaoc_de_blt_4_1f3pjqi2sgk00_t2_temperature_p_2_1
+            name: Temperatura
+          - type: tile
+            entity: sensor.miaomiaoc_de_blt_4_1f3pjqi2sgk00_t2_relative_humidity_p_2_2
+            name: Umidità
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Studio
+            icon: mdi:desk-lamp
+          - type: tile
+            entity: light.yeelink_de_113252899_lamp1_s_2_light
+            name: Lampada da scrivania
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Bagno
+            icon: mdi:shower
+          - type: tile
+            entity: sensor.mi_smart_scale_4a18_weight
+            name: Peso
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Esterno
+            icon: mdi:weather-partly-cloudy
+          - type: tile
+            entity: sensor.miaomiaoc_de_blt_4_1hrb35hjtgg00_t2_temperature_p_2_1
+            name: Temperatura esterna
+          - type: tile
+            entity: sensor.miaomiaoc_de_blt_4_1hrb35hjtgg00_t2_relative_humidity_p_2_2
+            name: Umidità esterna

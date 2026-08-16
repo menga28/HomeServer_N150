@@ -11,7 +11,16 @@ Thumbs.db
 # 2. ESCLUSIONE GENERALE di TUTTA APP-DATA
 # ===============================================
 # ESCLUDE TUTTO in appdata/, ri-inclusione fatta sotto
-appdata/
+# NOTA: "appdata/*" (non "appdata/") e' necessario perche' un pattern a barra
+# finale semplice blocca PERMANENTEMENTE l'attraversamento delle sottocartelle
+# per git, anche con regole "!" dopo — con "*" invece resta sovrascrivibile.
+appdata/*
+
+# Eccezione mirata: permette a git di attraversare SOLO appdata/homeassistant/
+# (le altre cartelle restano escluse esattamente come prima, perche' nessuna
+# regola le riabilita — la ri-inclusione selettiva sotto si applica solo qui)
+!appdata/homeassistant
+!appdata/homeassistant/**/
 
 # ===============================================
 # 3. RE-INCLUSIONI SELETTIVE (I file di Configurazione che vogliamo)
@@ -59,3 +68,35 @@ appdata/**/Crash Reports/
 
 # Escludi file Plex con token/segreti
 appdata/plex/**/Preferences.xml
+
+# ===============================================
+# 5. RI-ESCLUSIONI MIRATE — appdata/homeassistant/
+# ===============================================
+# Avendo aperto l'attraversamento di questa cartella (sezione 2), qui NON
+# basta piu' l'allowlist per estensione della sezione 3: tutto cio' che sta
+# dentro diventa visibile a meno di escluderlo esplicitamente. Queste regole
+# devono restare per ultime nel file per avere sempre la precedenza.
+
+# Contiene token/password in chiaro (account Xiaomi, eWeLink, GitHub, Tuya...)
+appdata/homeassistant/.storage/
+
+# File dedicato ai segreti per convenzione Home Assistant
+appdata/homeassistant/secrets.yaml
+
+# Sorgenti dei custom_components scaricati da HACS: enormi e riproducibili
+# da HACS stesso, non hanno senso in un repo GitOps di configurazione
+appdata/homeassistant/custom_components/
+
+# Asset binari dei temi (immagini/zip), non necessari, riscaricabili da HACS
+appdata/homeassistant/themes/**/*.jpg
+appdata/homeassistant/themes/**/*.jpeg
+appdata/homeassistant/themes/**/*.png
+appdata/homeassistant/themes/**/*.zip
+
+# Cache icone dei brand (centinaia di PNG rigenerabili automaticamente da HA)
+appdata/homeassistant/.cache/
+
+# File di runtime/lock, non configurazione
+appdata/homeassistant/.HA_VERSION
+appdata/homeassistant/.ha_run.lock
+appdata/homeassistant/home-assistant.log.*

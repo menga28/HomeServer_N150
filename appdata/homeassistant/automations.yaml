@@ -1,0 +1,36 @@
+- id: "1755000000001"
+  alias: "Camera da letto - Accendi luci all'arrivo"
+  description: "Accende Lampadina e Lampada da scrivania quando arrivi a casa, le spegne dopo 20 minuti"
+  triggers:
+    - trigger: state
+      entity_id: person.casamichele
+      to: "home"
+  actions:
+    - action: light.turn_on
+      target:
+        entity_id:
+          - light.yeelink_de_313037363_color2_s_2_light
+          - light.yeelink_de_113252899_lamp1_s_2_light
+    - delay: "00:20:00"
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.yeelink_de_313037363_color2_s_2_light
+          - light.yeelink_de_113252899_lamp1_s_2_light
+  mode: restart
+
+- id: "1755000000002"
+  alias: "Camera da letto - Spegni luci all'uscita"
+  description: "Spegne Lampadina e Lampada da scrivania 5 minuti dopo che esci di casa"
+  triggers:
+    - trigger: state
+      entity_id: person.casamichele
+      to: "not_home"
+  actions:
+    - delay: "00:05:00"
+    - action: light.turn_off
+      target:
+        entity_id:
+          - light.yeelink_de_313037363_color2_s_2_light
+          - light.yeelink_de_113252899_lamp1_s_2_light
+  mode: restart
