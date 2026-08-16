@@ -45,7 +45,9 @@ I servizi sono divisi in due profili Docker Compose:
 - **core** (nessun profilo): si avvia sempre al boot — tailscale, portainer, homepage, beszel, immich DB/Redis/ML, stirling-pdf, it-tools, watchtower
 - **media** (`profiles: ["media"]`): si avvia solo quando `/mnt/hdd_esterno` è montato — plex, jellyfin, qbittorrent, radarr, sonarr, filebrowser, immich-server
 
-Al boot, `homeserver.service` avvia solo i core. `homeserver-media.service` parte automaticamente quando il mount unit `mnt-hdd_esterno.mount` si attiva (HDD connesso). Se l'HDD viene rimosso, i container media si fermano automaticamente (BindsTo).
+Al boot, `homeserver.service` avvia solo i core. `homeserver-media.service` parte automaticamente quando il mount unit `mnt-hdd_esterno.mount` si attiva (HDD connesso), ricreando sempre i container (`--force-recreate`) così il bind mount su `${MEDIA_PATH}` è sempre fresco. Se l'HDD viene rimosso, i container media si fermano automaticamente (BindsTo).
+
+Tutti i servizi del profilo `media` hanno `restart: "no"`: Docker non li riavvia mai da solo al riavvio del demone/reboot. Solo `homeserver-media.service` può avviarli, e solo quando il mount è realmente attivo. Questo evita che un container riparta agganciato a una cartella vuota se l'HDD non si è rimontato (es. dopo un blackout, se il dock USB non si riaccende da solo).
 
 `telegram-data-hub.service` parte sempre al boot, indipendentemente dall'HDD.
 
