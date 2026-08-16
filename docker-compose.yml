@@ -136,7 +136,7 @@ services:
   plex:
     image: lscr.io/linuxserver/plex:latest
     container_name: plex
-    profiles: ["media"]
+    profiles: ["plex-disabled"] # disattivato manualmente: escluso da "media" così homeserver-media.service non lo riavvia
     network_mode: host
     environment:
       - PUID=${PUID}
