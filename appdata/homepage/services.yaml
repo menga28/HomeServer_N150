@@ -46,6 +46,25 @@
             container: watchtower
             statusStyle: dot
 
+      - Beszel Agent:
+            icon: https://raw.githubusercontent.com/henrygd/beszel/main/internal/site/public/static/icon.png
+            href: # Nessuna WebUI, agent abbinato a Beszel Hub
+            description: Agent Monitoraggio
+            server: my-docker
+            container: beszel-agent
+            statusStyle: dot
+
+# ==========================================
+# GRUPPO DOMOTICA
+# ==========================================
+- Domotica:
+      - Home Assistant:
+            icon: home-assistant.png
+            href: http://192.168.3.85:8123/
+            description: Automazione Casa
+            server: my-docker
+            container: homeassistant
+
 # ==========================================
 # GRUPPO 2: MEDIA CENTER
 # ==========================================
@@ -99,6 +118,14 @@
                 username: admin
                 password: 7534286
 
+      - FlareSolverr:
+            icon: flaresolverr.png
+            href: # Nessuna WebUI (solo API JSON), usato da Prowlarr
+            description: Bypass Cloudflare
+            server: my-docker
+            container: flaresolverr
+            statusStyle: dot
+
 # ==========================================
 # GRUPPO 4: FOTO E FILE
 # ==========================================
@@ -127,6 +154,30 @@
             description: Strumenti Dev
             server: my-docker
             container: it-tools
+
+      - Immich Postgres:
+            icon: postgresql.png
+            href: # Nessuna WebUI, database interno Immich
+            description: Database Immich
+            server: my-docker
+            container: immich_postgres
+            statusStyle: dot
+
+      - Immich Redis:
+            icon: redis.png
+            href: # Nessuna WebUI, cache interna Immich
+            description: Cache Immich
+            server: my-docker
+            container: immich_redis
+            statusStyle: dot
+
+      - Immich ML:
+            icon: immich.png
+            href: # Nessuna WebUI, worker Machine Learning Immich
+            description: Riconoscimento facce/oggetti Immich
+            server: my-docker
+            container: immich_machine_learning
+            statusStyle: dot
 
 # ==========================================
 # GRUPPO 5: TELEGRAM DATA HUB
@@ -161,6 +212,14 @@
             description: Dashboard & Metriche
             server: my-docker
             container: telegram_hub_grafana
+
+      - Telegram Postgres:
+            icon: postgresql.png
+            href: # Nessuna WebUI, database interno
+            description: Database Telegram Data Hub
+            server: my-docker
+            container: telegram_hub_postgres
+            statusStyle: dot
 
 # ==========================================
 # GRUPPO 6: GAMING

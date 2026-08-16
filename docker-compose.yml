@@ -290,6 +290,26 @@ services:
     networks:
       default:
 
+  # ==========================================
+  # DOMOTICA
+  # ==========================================
+
+  # Home Assistant - network_mode host per SSDP/mDNS (discovery HomeKit, Chromecast, Sonos, DHCP...)
+  # Senza host networking la discovery dei dispositivi in rete locale non funziona correttamente.
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    network_mode: host
+    volumes:
+      - ${CONFIG_PATH}/homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    # NET_ADMIN/NET_RAW + D-Bus: necessari per gestire l'adattatore Bluetooth della scheda madre (rilevato in automatico via network host)
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    restart: unless-stopped
+
         # ==========================================
         # MONITORING
         # ==========================================

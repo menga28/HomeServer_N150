@@ -42,7 +42,7 @@ systemctl status homeserver-media.service
 
 ### Boot resilience (HDD esterno spento)
 I servizi sono divisi in due profili Docker Compose:
-- **core** (nessun profilo): si avvia sempre al boot — tailscale, portainer, homepage, beszel, immich DB/Redis/ML, stirling-pdf, it-tools, watchtower
+- **core** (nessun profilo): si avvia sempre al boot — tailscale, portainer, homepage, beszel, homeassistant, immich DB/Redis/ML, stirling-pdf, it-tools, watchtower
 - **media** (`profiles: ["media"]`): si avvia solo quando `/mnt/hdd_esterno` è montato — jellyfin, qbittorrent, radarr, sonarr, filebrowser, immich-server
 
 Al boot, `homeserver.service` avvia solo i core. `homeserver-media.service` parte automaticamente quando il mount unit `mnt-hdd_esterno.mount` si attiva (HDD connesso), ricreando sempre i container (`--force-recreate`) così il bind mount su `${MEDIA_PATH}` è sempre fresco. Se l'HDD viene rimosso, i container media si fermano automaticamente (BindsTo).
@@ -66,6 +66,12 @@ Radarr, Sonarr, and qBittorrent all mount `${MEDIA_PATH}:/data` at the **same pa
 ### Hardware transcoding
 Plex, Jellyfin, and Immich all expose `/dev/dri:/dev/dri` for Intel QuickSync/OpenVINO acceleration on the N150 GPU.
 
+### Home Assistant
+Runs with `network_mode: host` (required for SSDP/mDNS discovery — HomeKit, Chromecast, Sonos, DHCP devices; without host networking, LAN device discovery breaks, which was a recurring source of past problems with HA in Docker). Needs `cap_add: NET_ADMIN, NET_RAW` plus a read-only bind mount of `/run/dbus` to manage the host's onboard Bluetooth adapter — omitting either causes `habluetooth`/D-Bus errors on startup. Config in `appdata/homeassistant`.
+
+### UFW and container ports
+UFW gates container ports regardless of network mode (bridge or host) on this host — Docker does not bypass it here. Every new service, including `network_mode: host` ones (see history: `beszel` 8090, `beszel-agent` 45876), needs an explicit `sudo ufw allow <port>/tcp` run manually over SSH (no passwordless sudo available for automated changes) followed by `sudo ufw reload`.
+
 ## Services at a glance
 
 ### Core (sempre attivi, nessun HDD)
@@ -74,6 +80,7 @@ Plex, Jellyfin, and Immich all expose `/dev/dri:/dev/dri` for Intel QuickSync/Op
 | Homepage | 3000 | Dashboard (config in `appdata/homepage/`) |
 | Portainer | 9000 | Docker management UI |
 | Beszel | 8090 | System monitoring (host network) |
+| Home Assistant | 8123 | Home automation (host network) |
 | Stirling PDF | 8081 | PDF tools |
 | IT-Tools | 8082 | Developer utilities |
 | Tailscale | — | VPN mesh + subnet router (192.168.3.0/24) |
@@ -105,4 +112,6 @@ Plex, Jellyfin, and Immich all expose `/dev/dri:/dev/dri` for Intel QuickSync/Op
 
 ## Homepage dashboard
 
-Configuration lives entirely in `appdata/homepage/`. Changes to `services.yaml`, `widgets.yaml`, etc. take effect immediately without restarting the container.
+Configuration lives entirely in `appdata/homepage/`. Changes to `services.yaml`, `widgets.yaml`, etc. take effect immediately without restarting the container (a `docker restart homepage` is only needed to pick up entirely new files).
+
+**Every container in `docker-compose.yml` must have a matching entry in `appdata/homepage/services.yaml`** — including internal/headless services with no web UI (databases, agents, workers). For those, omit `href` and add `statusStyle: dot` so the card just shows running/stopped status (see Watchtower, Telegram Bot, Immich Postgres/Redis for examples). When adding a new service to the compose file, add its Homepage card in the same change.
