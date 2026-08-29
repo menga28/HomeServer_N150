@@ -8,41 +8,220 @@ views:
       - type: grid
         cards:
           - type: heading
-            heading: Camera da letto
-            icon: mdi:bed
+            heading: Luci - Camera da letto
+            icon: mdi:lightbulb-group
+
           - type: tile
-            entity: switch.camera_letto_sonoff_100104a286
-            name: Luce principale
+            entity: script.cozy_light_camera_da_letto
+            name: Cozy Light
+            icon: mdi:weather-night
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: script.spegni_camera_da_letto
+            name: Spegni tutto
+            icon: mdi:lightbulb-group-off
+            grid_options:
+              columns: 6
+              rows: 2
+
           - type: tile
             entity: light.yeelink_de_313037363_color2_s_2_light
             name: Lampadina
+            features:
+              - type: light-brightness
+              - type: light-color-temp
+            grid_options:
+              columns: 6
+              rows: 3
+
           - type: tile
-            entity: media_player.camera_michele
-            name: Camera Michele
+            entity: light.yeelink_de_113252899_lamp1_s_2_light
+            name: Lampada da scrivania
+            features:
+              - type: light-brightness
+              - type: light-color-temp
+            grid_options:
+              columns: 6
+              rows: 3
+
           - type: tile
-            entity: switch.chuangmi_de_371050501_029a02_on_p_2_1
-            name: Videocamera
+            entity: light.controller_rgb_5c45b5
+            name: Controller RGB
+            features:
+              - type: light-brightness
+            grid_options:
+              columns: 6
+              rows: 3
+
           - type: tile
-            entity: switch.chuangmi_de_371050501_029a02_motion_detection_p_5_1
-            name: Rilevamento movimento
+            entity: script.accendi_camera_da_letto
+            name: Accendi tutto
+            icon: mdi:lightbulb-group
+            grid_options:
+              columns: 6
+              rows: 2
+
           - type: tile
-            entity: light.chuangmi_de_371050501_029a02_s_3_indicator_light
-            name: Indicatore videocamera
-          - type: tile
-            entity: sensor.miaomiaoc_de_blt_4_1f3pjqi2sgk00_t2_temperature_p_2_1
-            name: Temperatura
-          - type: tile
-            entity: sensor.miaomiaoc_de_blt_4_1f3pjqi2sgk00_t2_relative_humidity_p_2_2
-            name: Umidità
+            entity: switch.camera_letto_sonoff_100104a286
+            name: Luce principale
+            tap_action:
+              action: toggle
+            grid_options:
+              columns: 12
+              rows: 3
 
       - type: grid
         cards:
           - type: heading
-            heading: Studio
-            icon: mdi:desk-lamp
+            heading: Meteo
+            icon: mdi:weather-partly-cloudy
+
+          - type: weather-forecast
+            entity: weather.forecast_casa
+            forecast_type: daily
+            grid_options:
+              columns: 12
+              rows: 4
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Rete
+            icon: mdi:router-wireless
+
           - type: tile
-            entity: light.yeelink_de_113252899_lamp1_s_2_light
-            name: Lampada da scrivania
+            entity: binary_sensor.connessione_internet
+            name: Stato WAN
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: sensor.ip_pubblico
+            name: IP pubblico
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: sensor.wireless_router_velocita_di_scaricamento
+            name: Velocità download
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: sensor.wireless_router_velocita_di_caricamento
+            name: Velocità upload
+            grid_options:
+              columns: 6
+              rows: 2
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Servizi
+            icon: mdi:server
+
+          - type: tile
+            entity: sensor.qbittorrent_download_speed
+            name: Download qBittorrent
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: sensor.qbittorrent_upload_speed
+            name: Upload qBittorrent
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: sensor.qbittorrent_active_torrents
+            name: Torrent attivi
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: binary_sensor.radarr_salute
+            name: Salute Radarr
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: sensor.radarr_disk_space_movies
+            name: Spazio disco Film
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: sensor.sonarr_in_arrivo
+            name: Sonarr - In arrivo
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: sensor.minipc_active_clients
+            name: Jellyfin - Client attivi
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: binary_sensor.home_server_cliente
+            name: Tailscale - Server
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: binary_sensor.iphone_13_cliente
+            name: Tailscale - iPhone
+            grid_options:
+              columns: 6
+              rows: 2
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: Videocamera
+            icon: mdi:cctv
+
+          - type: tile
+            entity: switch.chuangmi_de_371050501_029a02_on_p_2_1
+            name: Videocamera
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: switch.chuangmi_de_371050501_029a02_motion_detection_p_5_1
+            name: Rilevamento movimento
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: light.chuangmi_de_371050501_029a02_s_3_indicator_light
+            name: Indicatore
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: media_player.camera_michele
+            name: Camera Michele
+            grid_options:
+              columns: 6
+              rows: 2
 
       - type: grid
         cards:
@@ -52,6 +231,9 @@ views:
           - type: tile
             entity: sensor.mi_smart_scale_4a18_weight
             name: Peso
+            grid_options:
+              columns: 6
+              rows: 2
 
       - type: grid
         cards:
@@ -61,6 +243,25 @@ views:
           - type: tile
             entity: sensor.miaomiaoc_de_blt_4_1hrb35hjtgg00_t2_temperature_p_2_1
             name: Temperatura esterna
+            grid_options:
+              columns: 6
+              rows: 2
           - type: tile
             entity: sensor.miaomiaoc_de_blt_4_1hrb35hjtgg00_t2_relative_humidity_p_2_2
             name: Umidità esterna
+            grid_options:
+              columns: 6
+              rows: 2
+
+          - type: tile
+            entity: sensor.miaomiaoc_de_blt_4_1f3pjqi2sgk00_t2_temperature_p_2_1
+            name: Temperatura camera
+            grid_options:
+              columns: 6
+              rows: 2
+          - type: tile
+            entity: sensor.miaomiaoc_de_blt_4_1f3pjqi2sgk00_t2_relative_humidity_p_2_2
+            name: Umidità camera
+            grid_options:
+              columns: 6
+              rows: 2

@@ -9,8 +9,8 @@ BindsTo=mnt-hdd_esterno.mount
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=/home/minipc/HomeServer
-ExecStart=/usr/bin/docker compose --profile media up -d --force-recreate --remove-orphans
-ExecStop=/usr/bin/docker compose --profile media stop
+ExecStart=/usr/bin/docker compose --profile media up -d --force-recreate --remove-orphans jellyfin qbittorrent radarr sonarr prowlarr flaresolverr filebrowser immich-server
+ExecStop=/usr/bin/docker compose --profile media stop jellyfin qbittorrent radarr sonarr prowlarr flaresolverr filebrowser immich-server
 User=minipc
 Group=docker
 

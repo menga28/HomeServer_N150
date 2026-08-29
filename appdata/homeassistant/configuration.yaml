@@ -25,3 +25,16 @@ logger:
     micloud: debug
     miio: debug
     homeassistant.components.xiaomi_miio: debug
+
+sensor:
+  - platform: rest
+    name: IP Pubblico
+    resource: https://api.ipify.org
+    value_template: "{{ value }}"
+    scan_interval: 1800
+
+template:
+  - binary_sensor:
+      - name: "Connessione Internet"
+        device_class: connectivity
+        state: "{{ states('sensor.ip_pubblico') not in ['unknown', 'unavailable', 'none', ''] }}"

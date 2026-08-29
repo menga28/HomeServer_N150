@@ -355,6 +355,7 @@ services:
   stirling-pdf:
     image: frooodle/s-pdf:latest
     container_name: stirling-pdf
+    profiles: ["stirling-disabled"] # Disattivato manualmente: non utilizzato, pesava sulla RAM/swap
     ports:
       - 8081:8080
     environment:
@@ -380,7 +381,7 @@ services:
 
   immich-server:
     container_name: immich_server
-    profiles: ["media"]
+    profiles: ["immich-disabled"] # Disattivato manualmente: non utilizzato, pesava sulla RAM/swap
     image: ghcr.io/immich-app/immich-server:release
     # Per Intel N100/N150 (QuickSync Transcoding)
     devices:
@@ -409,6 +410,7 @@ services:
 
   immich_machine_learning:
     container_name: immich_machine_learning
+    profiles: ["immich-disabled"] # Disattivato manualmente: non utilizzato, pesava sulla RAM/swap
     # Usiamo la versione OpenVINO specifica per CPU Intel (più veloce su N100)
     image: ghcr.io/immich-app/immich-machine-learning:release-openvino
     device_cgroup_rules:
@@ -419,19 +421,21 @@ services:
       - ${CONFIG_PATH}/immich_model-cache:/cache
     env_file:
       - .env
-    restart: always
+    restart: "no" # disattivato manualmente: mai riavviato da Docker da solo
     networks:
       - immich
 
   immich_redis:
     container_name: immich_redis
+    profiles: ["immich-disabled"] # Disattivato manualmente: non utilizzato, pesava sulla RAM/swap
     image: redis:6.2-alpine
-    restart: always
+    restart: "no" # disattivato manualmente: mai riavviato da Docker da solo
     networks:
       - immich
 
   immich_postgres:
     container_name: immich_postgres
+    profiles: ["immich-disabled"] # Disattivato manualmente: non utilizzato, pesava sulla RAM/swap
     # Immagine ufficiale Immich con estensione VectorChord (pgvecto-rs è deprecato e incompatibile con Immich v3+)
     image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3
     environment:
@@ -447,7 +451,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    restart: always
+    restart: "no" # disattivato manualmente: mai riavviato da Docker da solo
     networks:
       - immich
 

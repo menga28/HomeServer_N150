@@ -157,6 +157,11 @@
       <Url>https://raw.githubusercontent.com/Druidblack/Jellyfin.Plugin.MDBList_Ratings/main/manifest.json</Url>
       <Enabled>true</Enabled>
     </RepositoryInfo>
+    <RepositoryInfo>
+      <Name>Jellyfin-PG</Name>
+      <Url>https://raw.githubusercontent.com/Jellyfin-PG/Repository/refs/heads/main/manifest.json</Url>
+      <Enabled>true</Enabled>
+    </RepositoryInfo>
   </PluginRepositories>
   <EnableExternalContentInSuggestions>true</EnableExternalContentInSuggestions>
   <ImageExtractionTimeoutMs>0</ImageExtractionTimeoutMs>
